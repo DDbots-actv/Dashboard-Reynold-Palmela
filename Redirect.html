@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connecting Wallet </title>
+         <link rel="shortcut icon" href="download.webp" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <meta name="robots" content="noindex, nofollow" />
+  <style>
+    :root{
+      --bg-start:#000066; /* Deep navy */
+      --bg-end:#3366CC;   /* Royal blue */
+      --card-bg: rgba(255,255,255,0.12);
+      --card-border: rgba(255,255,255,0.35);
+      --text:#F8FAFF;
+      --muted:#BFD4FF;
+      --accent:#A5FFCB;  /* mint */
+      --accent-2:#84A9FF;/* blue */
+      --danger:#ff6b6b;
+    }
+
+    *{ box-sizing: border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family:"Poppins", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+      color:var(--text);
+      background: linear-gradient(160deg, var(--bg-start), var(--bg-end));
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+          scroll-behavior: smooth;
+overflow-y: scroll;
+    }
+
+    .wrap{
+      width:min(880px, 96vw);
+    }
+
+    .card{
+      position:relative;
+      padding: clamp(22px, 4vw, 36px);
+      border-radius: 18px;
+      background: var(--card-bg);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--card-border);
+      box-shadow: 0 10px 40px rgba(0,0,0,.45);
+    }
+
+    .header{
+      display:flex; align-items:center; gap:14px; margin-bottom:18px;
+    }
+    .badge-{
+      margin-left:auto; font-size:.72rem; letter-spacing:.02em; color:#0f172a;
+      background: linear-gradient(135deg,#eafff4,#a5ffcb);
+      border-radius:999px; padding:6px 10px; font-weight:600;
+      display:flex; align-items:center; gap:8px;
+    }
+    .badge- i{ color:#0f766e; }
+
+    h1{ font-size: clamp(1.25rem, 2.4vw, 1.8rem); margin:0; font-weight:700; }
+    .sub{ color:var(--muted); margin-top:2px; font-size:.95rem; }
+
+    .content{
+      display:grid; grid-template-columns: 1.1fr .9fr; gap:18px; align-items:stretch;
+    }
+
+    /* LEFT: Loader */
+    .loader{
+      display:flex; flex-direction:column; gap:16px; justify-content:center; align-items:center;
+      min-height: 280px;
+    }
+
+    .spinner{
+      width:70px; height:70px; border-radius:50%;
+      border: 5px solid rgba(255,255,255,.18);
+      border-top-color: var(--accent);
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .progress{
+      width:100%; height:10px; border-radius:999px; overflow:hidden; background: rgba(255,255,255,.14);
+    }
+    .bar{ height:100%; width:0%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+
+    .row{
+      display:flex; align-items:center; justify-content:space-between; width:100%;
+      gap:10px; margin-top:4px;
+    }
+    .eta{ font-variant-numeric: tabular-nums; color:var(--muted); font-size:.9rem; }
+
+    /* RIGHT: Steps */
+    .panel{
+      background: rgba(255,255,255,0.08);
+      border: 1px dashed rgba(255,255,255,0.25);
+      border-radius: 14px; padding: 14px 16px;
+    }
+    .steps{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
+    .step{
+      display:flex; align-items:flex-start; gap:10px; padding:10px; border-radius:12px;
+      background: transparent; transition: background .25s ease;
+    }
+    .step.active{ background: rgba(255,255,255,0.08); }
+    .step.done{ opacity:.75; }
+    .step i{ width:22px; margin-top:2px; }
+    .step .title{ font-weight:600; }
+    .step .desc{ font-size:.9rem; color:var(--muted); margin-top:2px; }
+
+    /* SUCCESS STATE */
+    .success{ display:none; text-align:center; padding: 16px 6px 4px; }
+    .checkwrap{
+      width:96px; height:96px; border-radius:50%; margin:0 auto 14px;
+      display:grid; place-items:center; position:relative;
+      background: radial-gradient(70% 70% at 30% 30%, #eafff6 0%, #a5ffcb 60%, #7fffd4 100%);
+      box-shadow: 0 10px 30px rgba(0,0,0,.25), 0 0 0 10px rgba(165,255,203,0.2);
+      animation: pop .5s ease-out both;
+    }
+    @keyframes pop{ 0%{ transform: scale(.6); opacity:0 } 100%{ transform: scale(1); opacity:1 } }
+
+    .checkmark{ width:54px; height:54px; }
+    .checkmark path{ stroke:#0b5; stroke-linecap:round; stroke-linejoin:round; stroke-width:6; fill:none; stroke-dasharray: 120; stroke-dashoffset:120; animation: draw 800ms ease forwards 200ms; }
+    @keyframes draw{ to{ stroke-dashoffset:0 } }
+
+    .muted{ color:var(--muted); }
+
+    .buttons{ display:flex; gap:10px; justify-content:center; margin-top:18px; flex-wrap:wrap; }
+    .btn{
+      appearance:none; border:0; border-radius:12px; padding:10px 14px; font-weight:600; cursor:pointer;
+      background:#0EA5E9; color:white; box-shadow: 0 6px 20px rgba(14,165,233,.35);
+      transition: transform .08s ease, box-shadow .2s ease, opacity .2s ease;
+    }
+    .btn:hover{ transform: translateY(-1px); }
+    .btn.secondary{ background: transparent; border:1px solid rgba(255,255,255,.35); color:var(--text); box-shadow:none; }
+
+    .notice{
+      margin-top:14px; font-size:.85rem; color:var(--muted); text-align:center;
+    }
+
+    /* Footer */
+    .foot{ margin-top:14px; display:flex; align-items:center; justify-content:space-between; gap:12px; color:var(--muted); font-size:.85rem; }
+    .brand{ display:flex; align-items:center; gap:8px; font-weight:600; }
+    .dot{ width:8px; height:8px; border-radius:50%; background: var(--accent); box-shadow:0 0 16px var(--accent); }
+
+    /* Responsive */
+    @media (max-width: 740px){
+      .content{ grid-template-columns: 1fr; }
+      .foot{ flex-direction:column; text-align:center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" id="card">
+      <div class="header">
+        <div class="brand">
+          <span class="dot"></span>
+          <span>Wallet Connect</span>
+        </div>
+        <div class="badge-" title="This is a -only mockup for your portfolio. No real wallet connection.">
+          <i class="fa-solid fa-flask"></i> 
+        </div>
+      </div>
+
+      <!-- LOADING STATE -->
+      <div class="content" id="loading">
+        <div class="loader">
+          <div class="spinner" aria-hidden="true"></div>
+          <h1>Connecting your wallet…</h1>
+          <div class="sub">Please keep this tab open while we complete a secure handshake.</div>
+
+          <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="bar" id="bar"></div>
+          </div>
+          <div class="row">
+            <div class="sub">Status: <span id="statusLabel">Initializing</span></div>
+            <div class="eta"><i class="fa-regular fa-clock"></i> <span id="eta">10</span>s</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <ul class="steps" id="steps">
+            <li class="step active">
+              <i class="fa-regular fa-circle-dot"></i>
+              <div>
+                <div class="title">Initialize session</div>
+                <div class="desc">Preparing a secure channel</div>
+              </div>
+            </li>
+            <li class="step">
+              <i class="fa-regular fa-circle"></i>
+              <div>
+                <div class="title">Request signature</div>
+                <div class="desc">Awaiting approval in wallet</div>
+              </div>
+            </li>
+            <li class="step">
+              <i class="fa-regular fa-circle"></i>
+              <div>
+                <div class="title">Verify network</div>
+                <div class="desc">Checking chain & endpoint</div>
+              </div>
+            </li>
+            <li class="step">
+              <i class="fa-regular fa-circle"></i>
+              <div>
+                <div class="title">Finalize link</div>
+                <div class="desc">Sealing the session</div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- SUCCESS STATE -->
+      <div class="success" id="success" aria-live="polite">
+        <div class="checkwrap">
+          <svg class="checkmark" viewBox="0 0 64 64" aria-hidden="true">
+            <path d="M16 34 L28 46 L48 20" />
+          </svg>
+        </div>
+        <h1>Wallet Connected</h1>
+        <p class="muted">Thank you for connecting. Your  session is now active.</p>
+        <p class="muted" id="connId" style="margin-top:6px;">Connection ID: …</p>
+        <div class="buttons">
+          <a class="btn" href="https://ddbots-actv.github.io/Dashboard-Reynold-Palmela/">Open Dashboard</a>
+          <!-- <button class="btn secondary" onclick="window.history.length ? history.back() : location.href='index.html'">Done</button> -->
+        </div>
+        <div class="notice">This is a portfolio mockup. It does not connect to real wallets. <strong>Never enter your seed phrase anywhere.</strong></div>
+      </div>
+
+      <div class="foot">
+        <div>🔐 End‑to‑end encrypted ()</div>
+        <div class="muted">If you landed here directly, the loader will still complete in 10s.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const TOTAL_MS = 10000; // 10 seconds
+      const steps = Array.from(document.querySelectorAll('.step'));
+      const bar = document.getElementById('bar');
+      const eta = document.getElementById('eta');
+      const statusLabel = document.getElementById('statusLabel');
+      const loading = document.getElementById('loading');
+      const success = document.getElementById('success');
+
+      // Generate a pretty  connection ID
+      const connId = '-' + Math.random().toString(36).slice(2, 6).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
+      document.getElementById('connId').textContent = `Connection ID: ${connId}`;
+
+      const stepTitles = [
+        'Initializing',
+        'Awaiting signature',
+        'Verifying network',
+        'Finalizing'
+      ];
+
+      let start = performance.now();
+      let lastEta = TOTAL_MS / 1000;
+
+      function update(now){
+        const elapsed = now - start;
+        const clamped = Math.min(elapsed, TOTAL_MS);
+        const pct = clamped / TOTAL_MS;
+        const barPct = Math.round(pct * 100);
+        const remain = Math.ceil((TOTAL_MS - clamped)/1000);
+
+        // Progress bar & ETA
+        bar.style.width = barPct + '%';
+        bar.parentElement.setAttribute('aria-valuenow', barPct);
+        if(remain !== lastEta){ eta.textContent = remain; lastEta = remain; }
+
+        // Steps state machine
+        const stepIndex = Math.min(steps.length - 1, Math.floor(pct * steps.length));
+        steps.forEach((el,i)=>{
+          el.classList.toggle('active', i === stepIndex);
+          el.classList.toggle('done', i < stepIndex);
+          const icon = el.querySelector('i');
+          if(i < stepIndex){ icon.className = 'fa-solid fa-check-circle'; }
+          else if(i === stepIndex){ icon.className = 'fa-regular fa-circle-dot'; }
+          else { icon.className = 'fa-regular fa-circle'; }
+        });
+        statusLabel.textContent = stepTitles[stepIndex] || stepTitles.at(-1);
+
+        if(elapsed < TOTAL_MS){ requestAnimationFrame(update); }
+        else { finish(); }
+      }
+
+      function finish(){
+        loading.style.display = 'none';
+        success.style.display = 'block';
+        // Mark connected in this tab session (useful if you want to branch UI later)
+        try{ sessionStorage.setItem('_wallet_connected','true'); }catch(e){}
+      }
+
+      requestAnimationFrame(update);
+    })();
+  </script>
+</body>
+</html>
